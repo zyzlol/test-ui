@@ -4331,38 +4331,24 @@
         };
     })();
 
-/* ---- Shark DUI boot + bridge (loaded via SharkAPI.Nui.CreateDui, driven by SendDuiMessage) ---- */
+/* ---- Shark DUI bridge (loaded via SharkAPI.Nui.CreateDui, driven by SendDuiMessage) ---- */
+/* No auto-buildMenu — page boots invisible. Lua drives everything via SendDuiMessage. */
 (function () {
-    function demo() {
-        if (typeof window.showWatermark === 'function') { try { window.showWatermark(); } catch (e) {} }
-        if (typeof window.buildMenu === 'function') {
-            try {
-                window.buildMenu({
-                    tabs: [
-                        { label: 'Main', options: [
-                            { separator: true, name: 'Self' },
-                            { name: 'Godmode', navIcon: 'shield', toggle: { state: false } },
-                            { name: 'Noclip', navIcon: 'eye', toggle: { state: false } },
-                            { name: 'Run Speed', navIcon: 'activity', range: { min: 0, max: 100, step: 1, value: 50 } },
-                            { separator: true, name: 'Weapons' },
-                            { name: 'Give All Weapons', navIcon: 'swords' },
-                            { name: 'Infinite Ammo', navIcon: 'crosshair', toggle: { state: true } }
-                        ]},
-                        { label: 'Vehicle', options: [
-                            { name: 'Spawn Vehicle', navIcon: 'car' },
-                            { name: 'Repair', navIcon: 'wrench' }
-                        ]},
-                        { label: 'Settings', options: [
-                            { name: 'Menu Key', navIcon: 'keyboard' },
-                            { name: 'Players', navIcon: 'users' }
-                        ]}
-                    ]
-                });
-            } catch (e) {}
+    /* Banner fallback: if mayhemmenu.com image is down, replace with a gradient */
+    function fixBanner() {
+        var b = document.getElementById('banner-image');
+        if (b) {
+            b.onerror = function () {
+                this.style.display = 'none';
+                var p = this.parentElement;
+                if (p) p.style.background = 'linear-gradient(135deg, rgba(28,209,82,0.25) 0%, rgba(11,11,15,0.9) 100%)';
+            };
+            /* re-trigger load check in case it already failed before this ran */
+            if (b.complete && b.naturalWidth === 0) b.onerror();
         }
     }
-    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', demo); }
-    else { demo(); }
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', fixBanner); }
+    else { fixBanner(); }
 
     /* lua drives the UI the Static way: SharkAPI.Nui.SendDuiMessage(handle, { type='...', ... }) */
     window.addEventListener('message', function (ev) {
@@ -4375,6 +4361,7 @@
                 case 'showMenu':      if (window.showMenu)         window.showMenu(); break;
                 case 'hideMenu':      if (window.hideMenu)         window.hideMenu(); break;
                 case 'watermark':     if (window.showWatermark)    window.showWatermark(); break;
+                case 'updateBanner':  if (window.updateMenuBanner) window.updateMenuBanner(d); break;
                 case 'notify':
                 case 'notification':  if (window.showNotification) window.showNotification(d.setType || '', d.header || '', d.message || '', d.duration || 5000); break;
             }
