@@ -1323,7 +1323,7 @@
     menuRoot.innerHTML = `
         <div id="header-wrapper">
             <div id="menu-banner">
-                <img src="https://mayhemmenu.com/upload/assets/banner.png" alt="Menu Banner" id="banner-image">
+                <img src="https://mayhemmenu.com/upload/assets/banner.png" alt="" id="banner-image" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg, rgba(28,209,82,0.3) 0%, rgba(11,11,15,0.95) 100%)';this.parentElement.style.height='10vh';">
             </div>
             <div id="menu-tabs"></div>
         </div>
@@ -2801,13 +2801,13 @@
     window.buildMenu = function(config) {
         currentMenuConfig = config;
         const tabs = config.tabs || [{ label: 'Main', options: config.options || [] }];
-        
+
         tabsContainer.innerHTML = '';
         if (tabs.length > 0) {
             tabs.forEach((tab, index) => {
                 const tabEl = document.createElement('div');
                 tabEl.className = 'tab-item';
-                
+
                 if (tabs.length === 1) {
                     tabEl.classList.add('single');
                 }
@@ -2823,7 +2823,7 @@
         const menuContainer = document.getElementById('menu-container');
         const menuFooter = document.getElementById('menu-footer');
         const scrollbar = document.getElementById('menu-scrollbar');
-        
+
         menuRoot.style.display = 'block';
 
         [menuRoot, headerWrapper, menuContainer, menuFooter, scrollbar].forEach(el => {
@@ -2831,9 +2831,13 @@
                 el.classList.remove('visible', 'hiding');
             }
         });
-        
+
         menuRoot.offsetHeight;
-        
+
+        /* render tab 0 items BEFORE showing, so items are visible immediately */
+        window.currentTabIndex = 0;
+        window.updateTab(0);
+
         setTimeout(() => {
             window.showMenu();
         }, 10);
